@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load publication_filters %}
+
+{% block content %}
+<div class="container">
+    <!-- Publication Title and Authors -->
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-4">{{ publication.title }}</h1>
+            <div class="lead">
+                By: 
+                {% for author in publication.authors.all %}
+                    <span class="badge bg-secondary">{{ author.name }}</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Publication Details -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Publication Details</h5>
+                    <table class="table table-borderless">
+                        <tr>
+                            <th style="width: 150px;">Category:</th>
+                            <td><a href="{% url 'publication_list_by_category' publication.category.id %}">
+                                {{ publication.category.name }}
+                            </a></td>
+                        </tr>
+                        <tr>
+                            <th>Published in:</th>
+                            <td>{{ publication.issue.edition.name }}, Issue {{ publication.issue.number }}</td>
+                        </tr>
+                        <tr>
+                            <th>Date:</th>
+                            <td>{{ publication.issue.date }}</td>
+                        </tr>
+                        <tr>
+                            <th>Pages:</th>
+                            <td>{{ publication.pages }}</td>
+                        </tr>
+                        <tr>
+                            <th>Keywords:</th>
+                            <td>
+                                {% for keyword in publication.keywords|split %}
+                                    <span class="badge bg-info text-dark">{{ keyword.strip }}</span>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Quick Links</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <a href="#abstract" class="text-decoration-none">Abstract</a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="#full-text" class="text-decoration-none">Full Text</a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="#citations" class="text-decoration-none">Citations</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Abstract -->
+    <div class="row mb-4" id="abstract">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Abstract</h5>
+                    <p class="card-text">{{ publication.abstract }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Full Text -->
+    <div class="row mb-4" id="full-text">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Full Text</h5>
+                    <div class="card-text">
+                        {{ publication.text|linebreaks }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Citations -->
+    <div class="row mb-4" id="citations">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Citations</h5>
+                    {% if publication.citations.all %}
+                        <ul class="list-group list-group-flush">
+                        {% for citation in publication.citations.all %}
+                            <li class="list-group-item">
+                                <a href="{% url 'publication_detail' citation.pk %}" class="text-decoration-none">
+                                    {{ citation.title }}
+                                </a>
+                                <small class="text-muted d-block">
+                                    {% for author in citation.authors.all %}
+                                        {{ author.name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                    ({{ citation.issue.date|date:"Y" }})
+                                </small>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="card-text">No citations found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Metadata -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Publication Metadata</h5>
+                    <table class="table table-borderless table-sm">
+                        <tr>
+                            <th style="width: 150px;">Created:</th>
+                            <td>{{ publication.created_at }}</td>
+                        </tr>
+                        <tr>
+                            <th>Last Updated:</th>
+                            <td>{{ publication.updated_at }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="row mb-4">
+        <div class="col">
+            <a href="{% url 'publication_list' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Publications
+            </a>
+            {% if user.is_staff %}
+                <a href="{% url 'admin:publications_publication_change' publication.pk %}" 
+                   class="btn btn-primary float-end">
+                    Edit in Admin
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <h4>Categories</h4>
+        {% comment %} <div class="list-group">
+            {% for category in categories %}
+            <a href="?category={{ category.id }}" class="list-group-item list-group-item-action">
+                {{ category.name }}
+            </a>
+            {% endfor %}
+        </div> {% endcomment %}
+        <ul class="list-group">
+            <li class="list-group-item {% if not current_category %}active{% endif %}">
+                <a href="{% url 'publication_list' %}" {% if not current_category %}class="text-white"{% endif %}>
+                    All Publications
+                </a>
+            </li>
+            {% for cat in categories %}
+                <li class="list-group-item {% if current_category == cat %}active{% endif %}">
+                    <a href="{% url 'publication_list_by_category' cat.id %}" 
+                    {% if current_category == cat %}class="text-white"{% endif %}>
+                        {{ cat.name }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="col-md-9">
+        <h2>
+            {% if current_category %}
+                Publications in category '{{ current_category.name }}'
+            {% else %}
+                All Publications
+            {% endif %}
+        </h2>
+        {% for publication in publications %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <a href="{% url 'publication_detail' publication.pk %}">{{ publication.title }}</a>
+                </h5>
+                <h6 class="card-subtitle mb-2 text-muted">
+                    {% for author in publication.authors.all %}
+                    {{ author.name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </h6>
+                <p class="card-text">{{ publication.abstract|truncatewords:50 }}</p>
+                <p class="card-text">
+                    <small class="text-muted">
+                        Published in {{ publication.issue }} (Pages: {{ publication.pages }})
+                    </small>
+                </p>
+            </div>
+        </div>
+        {% empty %}
+            <p>No publications found.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
