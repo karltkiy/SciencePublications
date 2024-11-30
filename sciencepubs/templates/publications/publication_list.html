@@ -2,15 +2,8 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-3">
+    <div class="col-md-3 mb-3">
         <h4>Categories</h4>
-        {% comment %} <div class="list-group">
-            {% for category in categories %}
-            <a href="?category={{ category.id }}" class="list-group-item list-group-item-action">
-                {{ category.name }}
-            </a>
-            {% endfor %}
-        </div> {% endcomment %}
         <ul class="list-group">
             <li class="list-group-item {% if not current_category %}active{% endif %}">
                 <a href="{% url 'publication_list' %}" {% if not current_category %}class="text-white"{% endif %}>
