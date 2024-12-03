@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load publication_filters %}
+
+{% block content %}
+  <div class="container">
+    <!-- Author Details -->
+    <div class="row mb-4">
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3">
+                <img src="https://via.placeholder.com/150" alt="{{ author.name }}" class="img-fluid rounded-circle" />
+              </div>
+              <div class="col-md-9">
+                <h1 class="display-4">{{ author.name }}</h1>
+                <p class="lead fst-italic">{{ author.affiliation }}</p>
+                <p class="lead">{{ author.bio }}</p>
+                <p class="text-muted">
+                  <i class="bi bi-envelope"></i> {{ author.email }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Author's Recent Publications -->
+    <div class="row mb-4">
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <h2 class="card-title">Recent Publications</h2>
+            {% if author.publications.all|length > 0 %}
+              <ul class="list-group list-group-flush">
+                {% for publication in author.publications.all|slice:':5' %}
+                  <li class="list-group-item">
+                    <a href="{% url 'publication_detail' publication.pk %}" class="text-decoration-none">{{ publication.title }}</a>
+                    <small class="text-muted d-block">Published in {{ publication.issue.edition.name }}, Issue {{ publication.issue.number }} ({{ publication.issue.date|date:'Y' }})</small>
+                  </li>
+                {% endfor %}
+              </ul>
+              {% if author.publications.all|length > 5 %}
+                <div class="text-end">
+                  <a href="{% url 'publication_list' %}?author={{ author.id }}" class="btn btn-primary">Show all publications</a>
+                </div>
+              {% endif %}
+            {% else %}
+              <p class="card-text">No publications found for this author.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="row mb-4">
+      <div class="col">
+        <a href="{% url 'publication_list' %}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back to Publications</a>
+        {% if user.is_staff %}
+          <a href="{% url 'admin:publications_author_change' author.pk %}" class="btn btn-primary float-end">Edit in Admin</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

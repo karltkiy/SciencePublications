@@ -18,10 +18,10 @@ INSERT INTO publications_category (id, name, description) VALUES
 (5, 'Commentary', 'Expert opinion and perspective on current topics');
 
 -- Editions
-INSERT INTO publications_edition (id, name, description) VALUES
-(1, 'Journal of Computer Science', 'Peer-reviewed journal focusing on computer science research'),
-(2, 'Data Science Review', 'Publication dedicated to advances in data science and analytics'),
-(3, 'AI Quarterly', 'Quarterly publication on artificial intelligence developments');
+INSERT INTO publications_edition (id, category_id, name, description) VALUES
+(1, 1, 'Journal of Computer Science', 'Peer-reviewed journal focusing on computer science research'),
+(2, 3, 'Data Science Review', 'Publication dedicated to advances in data science and analytics'),
+(3, 4, 'AI Quarterly', 'Quarterly publication on artificial intelligence developments');
 
 -- Issues
 INSERT INTO publications_issue (id, edition_id, number, date, description) VALUES
@@ -42,7 +42,7 @@ INSERT INTO publications_author (id, name, email, affiliation, bio) VALUES
 -- Publications
 INSERT INTO publications_publication (
     id, title, abstract, text, pages, keywords, 
-    doi, category_id, issue_id, created_at, updated_at
+    doi, issue_id, created_at, updated_at
 ) VALUES
 (1, 
  'Machine Learning Applications in Healthcare', 
@@ -51,7 +51,6 @@ INSERT INTO publications_publication (
  '12-24',
  'machine learning, healthcare, AI, diagnostics',
  '10.1234/mlhealth.2023',
- 1, -- Research Article
  1, -- Journal of Computer Science, Issue 1
  '2023-01-15 10:00:00', '2023-01-15 10:00:00'),
 
@@ -62,7 +61,6 @@ INSERT INTO publications_publication (
  '25-42',
  'deep learning, frameworks, neural networks, AI',
  '10.1234/dlreview.2023',
- 2, -- Review Article
  1, -- Journal of Computer Science, Issue 1
  '2023-01-15 11:00:00', '2023-01-15 11:00:00'),
 
@@ -73,7 +71,6 @@ INSERT INTO publications_publication (
  '43-58',
  'cloud computing, data privacy, security',
  '10.1234/privacy.2023',
- 1, -- Research Article
  2, -- Journal of Computer Science, Issue 2
  '2023-04-15 10:00:00', '2023-04-15 10:00:00'),
 
@@ -84,7 +81,6 @@ INSERT INTO publications_publication (
  '15-28',
  'blockchain, supply chain, case study',
  '10.1234/blockchain.2023',
- 3, -- Case Study
  3, -- Data Science Review, Issue 1
  '2023-03-01 10:00:00', '2023-03-01 10:00:00'),
 
@@ -95,7 +91,6 @@ INSERT INTO publications_publication (
  '5-11',
  'quantum computing, technology, future',
  '10.1234/quantum.2023',
- 4, -- Technical Note
  4, -- AI Quarterly, Issue 1
  '2023-01-01 10:00:00', '2023-01-01 10:00:00');
 

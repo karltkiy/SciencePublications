@@ -1,55 +1,120 @@
 {% extends 'base.html' %}
+{% load publication_filters %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-3 mb-3">
-        <h4>Categories</h4>
-        <ul class="list-group">
-            <li class="list-group-item {% if not current_category %}active{% endif %}">
-                <a href="{% url 'publication_list' %}" {% if not current_category %}class="text-white"{% endif %}>
-                    All Publications
-                </a>
-            </li>
-            {% for cat in categories %}
-                <li class="list-group-item {% if current_category == cat %}active{% endif %}">
-                    <a href="{% url 'publication_list_by_category' cat.id %}" 
-                    {% if current_category == cat %}class="text-white"{% endif %}>
-                        {{ cat.name }}
-                    </a>
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
-    <div class="col-md-9">
-        <h2>
-            {% if current_category %}
-                Publications in category '{{ current_category.name }}'
-            {% else %}
-                All Publications
-            {% endif %}
-        </h2>
-        {% for publication in publications %}
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title">
-                    <a href="{% url 'publication_detail' publication.pk %}">{{ publication.title }}</a>
-                </h5>
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar with filters -->
+      <div class="col-md-3 mb-3">
+        <form method="get" id="filter-form">
+          {% for filter_group in filter_groups %}
+            <div class="card mb-3">
+              <div class="card-header">
+                <h5 class="mb-2">{{ filter_group.title }}</h5>
+                <input type="text" class="form-control search-box" placeholder="Search {{ filter_group.title }}..." data-target="{{ filter_group.id }}" />
+              </div>
+              <div class="card-body filter-container">
+                <div class="filter-content" id="{{ filter_group.id }}">
+                  {% for item in filter_group.items %}
+                    <div class="form-check filter-item">
+                      <input type="checkbox" class="form-check-input" name="{{ filter_group.param }}" value="{{ item.id }}"
+                      {% if item.id|stringformat:"s" in request.GET|get_list:filter_group.param %} checked{% endif %}>
+                      <label class="form-check-label"
+                        data-toggle="tooltip"
+                        title="{% if filter_group.param == 'author' %}
+                          {{ item.affiliation }}
+                        {% else %}
+                          {{ item.description }}
+                        {% endif %}">
+                        {% if filter_group.param == 'issue' %}
+                          № {{ item.number }}
+                        {% else %}
+                          {{ item.name }}
+                        {% endif %}
+                        {% if filter_group.id == 'issues' %}
+                          ({{ item.edition.name }})
+                        {% endif %}
+                      </label>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+          <button type="submit" class="btn btn-primary">Apply Filters</button>
+        </form>
+      </div>
+      <!-- Publications list -->
+      <div class="col-md-9">
+        {% if publications %}
+          <h4 class="mb-3">Found {{ publications.count }} publication{% if publications.count > 1 %}s{% endif %}</h4>
+          {% for publication in publications %}
+            <div class="card mb-3">
+              <div class="card-body">
+                <h5 class="card-title"><a href="{% url 'publication_detail' publication.pk %}">{{ publication.title }}</a></h5>
                 <h6 class="card-subtitle mb-2 text-muted">
-                    {% for author in publication.authors.all %}
+                  {% for author in publication.authors.all %}
                     {{ author.name }}{% if not forloop.last %}, {% endif %}
-                    {% endfor %}
+                  {% endfor %}
                 </h6>
                 <p class="card-text">{{ publication.abstract|truncatewords:50 }}</p>
                 <p class="card-text">
-                    <small class="text-muted">
-                        Published in {{ publication.issue }} (Pages: {{ publication.pages }})
-                    </small>
+                  <small class="text-muted">Published in {{ publication.issue }} (Pages: {{ publication.pages }})</small>
                 </p>
+              </div>
             </div>
-        </div>
-        {% empty %}
-            <p>No publications found.</p>
-        {% endfor %}
+          {% endfor %}
+        {% else %}
+          <div class="alert alert-info">
+            No publications found matching your criteria.
+          </div>
+        {% endif %}
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+          <nav>
+            <ul class="pagination">
+              {% if page_obj.has_previous %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                </li>
+              {% endif %}
+
+              {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                  <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+              {% endfor %}
+
+              {% if page_obj.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                </li>
+              {% endif %}
+            </ul>
+          </nav>
+        {% endif %}
+      </div>
     </div>
-</div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    $(document).ready(function () {
+      // Initialize tooltips
+      $('[data-toggle="tooltip"]').tooltip()
+    
+      // Search functionality
+      $('.search-box').on('input', function () {
+        var searchText = $(this).val().toLowerCase()
+        var targetId = $(this).data('target')
+    
+        $('#' + targetId + ' .filter-item').each(function () {
+          var itemText = $(this).text().toLowerCase()
+          $(this).toggle(itemText.includes(searchText))
+        })
+      })
+    })
+  </script>
 {% endblock %}

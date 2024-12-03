@@ -2,9 +2,11 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.publication_list, name='publication_list'),
-    path('category/<int:pk>/', views.publication_list,
-         name='publication_list_by_category'),
-    path('publication/<int:pk>/', views.publication_detail,
+    path('', views.PublicationListView.as_view(), name='publication_list'),
+    path('publication/<int:publication_id>/', views.publication_detail,
          name='publication_detail'),
+    path('author/<int:author_id>/', views.author_detail,
+         name='author_detail'),
+#     path('api/format-citations/',
+#          views.format_citations, name='format_citations'),
 ]

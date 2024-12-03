@@ -2,168 +2,250 @@
 {% load publication_filters %}
 
 {% block content %}
-<div class="container">
+  <div class="container">
     <!-- Publication Title and Authors -->
     <div class="row mb-4">
-        <div class="col">
-            <h1 class="display-4">{{ publication.title }}</h1>
-            <div class="lead">
-                By: 
-                {% for author in publication.authors.all %}
-                    <span class="badge bg-secondary">{{ author.name }}</span>
-                {% endfor %}
-            </div>
+      <div class="col">
+        <h1 class="display-4">{{ publication.title }}</h1>
+        <div class="lead">
+          By:{% for author in publication.authors.all %}
+            <a class="text-decoration-none" href="{% url 'author_detail' author.id %}"><span class="badge bg-secondary">{{ author.name }}</span></a>
+          {% endfor %}
         </div>
+      </div>
     </div>
 
     <!-- Publication Details -->
     <div class="row mb-4">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Publication Details</h5>
-                    <table class="table table-borderless">
-                        <tr>
-                            <th style="width: 150px;">Category:</th>
-                            <td><a href="{% url 'publication_list_by_category' publication.category.id %}">
-                                {{ publication.category.name }}
-                            </a></td>
-                        </tr>
-                        <tr>
-                            <th>Published in:</th>
-                            <td>{{ publication.issue.edition.name }}, Issue {{ publication.issue.number }}</td>
-                        </tr>
-                        <tr>
-                            <th>Date:</th>
-                            <td>{{ publication.issue.date }}</td>
-                        </tr>
-                        <tr>
-                            <th>Pages:</th>
-                            <td>{{ publication.pages }}</td>
-                        </tr>
-                        <tr>
-                            <th>Keywords:</th>
-                            <td>
-                                {% for keyword in publication.keywords|split %}
-                                    <span class="badge bg-info text-dark">{{ keyword.strip }}</span>
-                                {% endfor %}
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
+      <div class="col-md-8">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Publication Details</h5>
+            <table class="table table-borderless">
+              <tr>
+                <th style="width: 150px;">Category:</th>
+                <td>
+                  <a href="{% url 'publication_list' %}?category={{ publication.issue.edition.category.id }}">{{ publication.issue.edition.category.name }}</a>
+                </td>
+              </tr>
+              <tr>
+                <th>Published in:</th>
+                <td>
+                  <a href="{% url 'publication_list' %}?issue={{ publication.issue.id }}">{{ publication.issue.edition.name }}, Issue {{ publication.issue.number }}</a>
+                </td>
+              </tr>
+              <tr>
+                <th>Date:</th>
+                <td>{{ publication.issue.date }}</td>
+              </tr>
+              <tr>
+                <th>Pages:</th>
+                <td>{{ publication.pages }}</td>
+              </tr>
+              <tr>
+                <th>Keywords:</th>
+                <td>
+                  {% for keyword in publication.keywords|split %}
+                    <span class="badge bg-info text-dark">{{ keyword.strip }}</span>
+                  {% endfor %}
+                </td>
+              </tr>
+            </table>
+          </div>
         </div>
-        
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Quick Links</h5>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">
-                            <a href="#abstract" class="text-decoration-none">Abstract</a>
-                        </li>
-                        <li class="list-group-item">
-                            <a href="#full-text" class="text-decoration-none">Full Text</a>
-                        </li>
-                        <li class="list-group-item">
-                            <a href="#citations" class="text-decoration-none">Citations</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Quick Links</h5>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                <a href="#abstract" class="text-decoration-none">Abstract</a>
+              </li>
+              <li class="list-group-item">
+                <a href="#full-text" class="text-decoration-none">Full Text</a>
+              </li>
+              <li class="list-group-item">
+                <a href="#citations" class="text-decoration-none">Citations</a>
+              </li>
+            </ul>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Abstract -->
     <div class="row mb-4" id="abstract">
-        <div class="col">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Abstract</h5>
-                    <p class="card-text">{{ publication.abstract }}</p>
-                </div>
-            </div>
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Abstract</h5>
+            <p class="card-text">{{ publication.abstract }}</p>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Full Text -->
     <div class="row mb-4" id="full-text">
-        <div class="col">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Full Text</h5>
-                    <div class="card-text">
-                        {{ publication.text|linebreaks }}
-                    </div>
-                </div>
-            </div>
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Full Text</h5>
+            <div class="card-text">{{ publication.text|linebreaks }}</div>
+          </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Bibliographic References -->
+    <div class="row mb-4">
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">How to Cite</h5>
+            <ul class="nav nav-tabs" id="citationTabs" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link active" id="gost-tab" data-toggle="tab" href="#gost" role="tab">GOST</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="apa-tab" data-toggle="tab" href="#apa" role="tab">APA</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="mla-tab" data-toggle="tab" href="#mla" role="tab">MLA</a>
+              </li>
+            </ul>
+            <div class="tab-content mt-3" id="citationTabContent">
+              {% for style, citation in citations.items %}
+                <div class="tab-pane fade {% if style == 'gost' %}show active{% endif %}" id="{{ style }}" role="tabpanel">
+                  <div class="citation-container">
+                    <p class="citation-text">{{ citation|safe }}</p>
+                    <button class="btn btn-sm btn-outline-secondary copy-btn" data-citation="{{ citation|striptags }}">Copy</button>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Citations -->
-    <div class="row mb-4" id="citations">
-        <div class="col">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Citations</h5>
-                    {% if publication.citations.all %}
-                        <ul class="list-group list-group-flush">
-                        {% for citation in publication.citations.all %}
-                            <li class="list-group-item">
-                                <a href="{% url 'publication_detail' citation.pk %}" class="text-decoration-none">
-                                    {{ citation.title }}
-                                </a>
-                                <small class="text-muted d-block">
-                                    {% for author in citation.authors.all %}
-                                        {{ author.name }}{% if not forloop.last %}, {% endif %}
-                                    {% endfor %}
-                                    ({{ citation.issue.date|date:"Y" }})
-                                </small>
-                            </li>
-                        {% endfor %}
-                        </ul>
+    <div class="row mb-4">
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">References</h5>
+            {% if cited_publications %}
+              <ul class="list-unstyled">
+                {% for cited in cited_publications %}
+                  <li class="mb-3">
+                    {% if cited.type == 'internal' %}
+                      <a href="{% url 'publication_detail' cited.publication.id %}">{{ cited.citation|safe }}</a>
                     {% else %}
-                        <p class="card-text">No citations found.</p>
+                      {% if cited.publication.url %}
+                        <a href="{{ cited.publication.url }}" target="_blank">{{ cited.citation|safe }}</a>
+                      {% else %}
+                        {{ cited.citation|safe }}
+                      {% endif %}
                     {% endif %}
-                </div>
-            </div>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p>No references found.</p>
+            {% endif %}
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Metadata -->
     <div class="row mb-4">
-        <div class="col">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Publication Metadata</h5>
-                    <table class="table table-borderless table-sm">
-                        <tr>
-                            <th style="width: 150px;">Created:</th>
-                            <td>{{ publication.created_at }}</td>
-                        </tr>
-                        <tr>
-                            <th>Last Updated:</th>
-                            <td>{{ publication.updated_at }}</td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Publication Metadata</h5>
+            <table class="table table-borderless table-sm">
+              <tr>
+                <th style="width: 150px;">Created:</th>
+                <td>{{ publication.created_at }}</td>
+              </tr>
+              <tr>
+                <th>Last Updated:</th>
+                <td>{{ publication.updated_at }}</td>
+              </tr>
+            </table>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Navigation Buttons -->
     <div class="row mb-4">
-        <div class="col">
-            <a href="{% url 'publication_list' %}" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Back to Publications
-            </a>
-            {% if user.is_staff %}
-                <a href="{% url 'admin:publications_publication_change' publication.pk %}" 
-                   class="btn btn-primary float-end">
-                    Edit in Admin
-                </a>
-            {% endif %}
-        </div>
+      <div class="col">
+        <a href="{% url 'publication_list' %}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back to Publications</a>
+        {% if user.is_staff %}
+          <a href="{% url 'admin:publications_publication_change' publication.pk %}" class="btn btn-primary float-end">Edit in Admin</a>
+        {% endif %}
+      </div>
     </div>
-</div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    // Citation standard switcher functionality
+    document.addEventListener('DOMContentLoaded', function () {
+      // Get the citation tabs container
+      const citationTabs = document.getElementById('citationTabs')
+    
+      if (citationTabs) {
+        citationTabs.addEventListener('click', function (event) {
+          const tabButtons = document.querySelectorAll('#citationTabs .nav-item .nav-link')
+          tabButtons.forEach((pane) => {
+            pane.classList.remove('active')
+          })
+          // Ensure we're clicking on a tab link
+          if (event.target.classList.contains('nav-link')) {
+            event.target.classList.add('active')
+            const selectedStyle = event.target.id.replace('-tab', '')
+            switchCitationStyle(selectedStyle)
+          }
+        })
+      }
+    })
+    
+    function switchCitationStyle(style) {
+      // Update both the "How to Cite" section and References section
+      updateMainCitation(style)
+      // updateReferences(style)
+    }
+    
+    function updateMainCitation(style) {
+      // Show the selected citation tab content
+      const tabPanes = document.querySelectorAll('.tab-content .tab-pane')
+      tabPanes.forEach((pane) => {
+        pane.classList.remove('show', 'active')
+        if (pane.id === style) {
+          pane.classList.add('show', 'active')
+        }
+      })
+    }
+    
+    // Copy citation functionality
+    document.querySelectorAll('.copy-btn').forEach((button) => {
+      button.addEventListener('click', function () {
+        const citation = this.dataset.citation
+        navigator.clipboard.writeText(citation).then(() => {
+          const originalText = this.textContent
+          this.textContent = 'Copied!'
+          setTimeout(() => {
+            this.textContent = originalText
+          }, 2000)
+        })
+      })
+    })
+  </script>
 {% endblock %}
