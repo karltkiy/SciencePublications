@@ -31,7 +31,7 @@ def create_citation_item(publication):
     }
 
 
-def generate_citation(publication, style='gost'):
+def generate_citation(publication, style_str='gost'):
     """Generate citation in specified format"""
     # Create citation item
     citation_item = create_citation_item(publication)
@@ -39,7 +39,7 @@ def generate_citation(publication, style='gost'):
 
     # Load citation style
     style = CitationStylesStyle(get_style_filepath(
-        STYLES.get(style, 'gost-r-7-0-5-2008')))
+        STYLES.get(style_str, 'gost-r-7-0-5-2008')))
 
     # Create bibliography
     bibliography = CitationStylesBibliography(
@@ -48,7 +48,10 @@ def generate_citation(publication, style='gost'):
     # Generate citation
     bibliography.register(Citation([CitationItem(str(publication.id))]))
 
-    return ''.join(bibliography.bibliography()[0])
+    result = ''.join(bibliography.bibliography()[0])
+    if style_str == 'gost':
+        return result[3:-1]
+    return result
 
 
 def create_external_citation_item(external_publication):
